@@ -376,12 +376,7 @@
   let isLoggedIn = false;
   let editingId = null;
 
-  const credentials = {
-    admin: 'admin123',
-    hr: 'hr123',
-    manager: 'mgr123',
-    viewer: ''
-  };
+  const credentials = { viewer: '' };
 
   function canEdit() {
     return isLoggedIn && (currentUser === 'admin' || currentUser === 'hr' || currentUser === 'manager');
@@ -395,12 +390,12 @@
       return;
     }
     const password = prompt(`Enter password for ${role}:`);
-    if (password === credentials[role]) {
+    if (credentials[role] && password === credentials[role]) {
       isLoggedIn = true;
       currentUser = role;
       alert(`✅ Logged in as ${role}`);
     } else {
-      alert(`❌ Wrong password! Hint: ${credentials[role]}`);
+      alert('❌ Staff authentication is being configured.');
       isLoggedIn = false;
       currentUser = 'viewer';
     }
