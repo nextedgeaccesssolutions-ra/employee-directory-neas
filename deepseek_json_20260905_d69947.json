@@ -1,0 +1,9 @@
+{
+  "name": "employee-neas",
+  "version": "1.0.0",
+  "description": "NEAS Employee Directory",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'No build step required'"
+  }
+}

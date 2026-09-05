@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>NEAS | Employee Directory</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      margin: 0;
+      color: #1e293b;
+    }
+    .app-container {
+      width: 100%;
+      max-width: 1300px;
+      background: white;
+      border-radius: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+    }
+    .app-header {
+      background: linear-gradient(135deg, #0b1e33 0%, #1a2c40 100%);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .logo-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      background: linear-gradient(145deg, #1e90ff, #0066cc);
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      box-shadow: 0 8px 18px rgba(0,102,204,0.3);
+    }
+    .logo-text {
+      color: white;
+      font-weight: 700;
+      font-size: 1.7rem;
+      letter-spacing: -0.5px;
+    }
+    .logo-sub {
+      color: #a0c4ff;
+      font-size: 0.9rem;
+    }
+    .drive-badge {
+      background: #1a2c40;
+      padding: 0.5rem 1.2rem;
+      border-radius: 30px;
+      color: #e6edf5;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #31465c;
+    }
+    .drive-badge i { color: #2eb82e; }
+    .login-bar {
+      background: white;
+      padding: 0.8rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      border-bottom: 1px solid #e0e8f0;
+    }
+    .role-badge {
+      background: #eef3fa;
+      padding: 0.4rem 1.2rem;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .login-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.6rem 1.3rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: 1px solid #d9e2ec;
+      background: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn:hover { 
+      background: #f1f5f9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .btn-primary {
+      background: #0a2647;
+      color: white;
+      border-color: #0a2647;
+    }
+    .btn-primary:hover { background: #1e3a5f; }
+    .btn-success {
+      background: #1e7e34;
+      color: white;
+      border-color: #1e7e34;
+    }
+    .btn-success:hover { background: #145c26; }
+    .toolbar {
+      padding: 1rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      border-bottom: 1px solid #e9eef3;
+    }
+    .search-wrapper {
+      display: flex;
+      align-items: center;
+      background: #f3f6fa;
+      border-radius: 40px;
+      padding: 0.3rem 0.3rem 0.3rem 1.2rem;
+      flex: 1;
+      max-width: 420px;
+      border: 1px solid #dde3ec;
+    }
+    .search-wrapper i { color: #6b7a8f; }
+    .search-wrapper input {
+      border: none;
+      background: transparent;
+      padding: 0.6rem;
+      width: 100%;
+      outline: none;
+    }
+    .table-container {
+      overflow-x: auto;
+      padding: 0.2rem 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th {
+      text-align: left;
+      padding: 1rem 1.5rem;
+      background: #f9fbfd;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #dde3ec;
+    }
+    td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #eef2f7;
+    }
+    tr:hover td { background: #f8fafd; }
+    .avatar {
+      background: #cdddec;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin-right: 8px;
+      color: #0a2647;
+    }
+    .folder-link {
+      background: #eaf1fd;
+      padding: 0.4rem 0.9rem;
+      border-radius: 40px;
+      text-decoration: none;
+      color: #0056b3;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+    .folder-link:hover { background: #d4e3fc; }
+    .action-icons { display: flex; gap: 0.7rem; }
+    .action-icons i {
+      cursor: pointer;
+      color: #64748b;
+      transition: 0.1s;
+    }
+    .action-icons i:hover { color: #0f172a; transform: scale(1.1); }
+    .editable-hint { font-size: 0.75rem; color: #94a3b8; }
+    .footer-note {
+      padding: 1rem 2rem;
+      background: #fafcff;
+      font-size: 0.8rem;
+      color: #476788;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      border-top: 1px solid #e2e9f2;
+    }
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: 0.2s;
+    }
+    .modal-backdrop.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .modal-card {
+      background: white;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .modal-card h3 { margin-bottom: 1.2rem; }
+    .modal-card input, .modal-card textarea {
+      width: 100%;
+      padding: 0.8rem;
+      border-radius: 14px;
+      border: 1px solid #cbd5e1;
+      margin-bottom: 1rem;
+      font-family: inherit;
+    }
+    .modal-card textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+    .login-modal {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .login-modal.active {
+      display: flex;
+    }
+    .login-card {
+      background: white;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .login-card h3 { margin-bottom: 1rem; }
+    .login-card input {
+      width: 100%;
+      padding: 0.8rem;
+      border-radius: 14px;
+      border: 1px solid #cbd5e1;
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 768px) {
+      .app-header, .toolbar, .login-bar { padding: 1rem; }
+      td, th { padding: 0.8rem 0.6rem; }
+      .logo-text { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="logo-brand">
+      <div class="logo-icon">N</div>
+      <div>
+        <div class="logo-text">NEAS</div>
+        <div class="logo-sub">Employee Directory · Drive Sync</div>
+      </div>
+    </div>
+    <div class="drive-badge">
+      <i class="fab fa-google-drive"></i>
+      <span>Folder: 18LExKPiPAU4zvAEV5cg8v1ELeC1ncCHU</span>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="login-bar">
+    <div class="role-badge" id="currentRoleDisplay">
+      <i class="fas fa-user-shield"></i>
+      <span id="roleText">Public viewer (read-only)</span>
+    </div>
+    <div class="login-actions">
+      <button class="btn" onclick="showLoginModal('admin')">👑 Admin</button>
+      <button class="btn" onclick="showLoginModal('hr')">🧑‍💼 HR</button>
+      <button class="btn" onclick="showLoginModal('manager')">📋 Manager</button>
+      <button class="btn" onclick="loginAsViewer()">👁️ Viewer</button>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="search-wrapper">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search employees..." onkeyup="renderTable(this.value)">
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <button class="btn" onclick="exportCSV()"><i class="fas fa-file-export"></i> Export CSV</button>
+      <label class="btn" for="importFileInput" style="cursor:pointer;"><i class="fas fa-file-import"></i> Import CSV</label>
+      <input type="file" id="importFileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
+      <button class="btn btn-success" onclick="openAddModal()"><i class="fas fa-user-plus"></i> Add Employee</button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Role</th>
+          <th>Email</th>
+          <th>Joined Date</th>
+          <th>Address</th>
+          <th>Drive Folder</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-note">
+    <span><i class="fas fa-shield-alt"></i> Logins: admin/admin123 · hr/hr123 · manager/mgr123 · viewer public</span>
+    <span id="employeeCount">0 employees</span>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="login-modal" id="loginModal">
+  <div class="login-card">
+    <h3 id="loginTitle">Login</h3>
+    <input type="password" id="loginPassword" placeholder="Enter password" onkeypress="if(event.key==='Enter') confirmLogin()">
+    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+      <button class="btn" onclick="closeLoginModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmLogin()">Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- EMPLOYEE MODAL -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-card">
+    <h3 id="modalTitle">Add Employee</h3>
+    <input type="text" id="editName" placeholder="Full Name">
+    <input type="text" id="editRole" placeholder="Job Role">
+    <input type="email" id="editEmail" placeholder="Email">
+    <input type="date" id="editJoinDate">
+    <textarea id="editAddress" placeholder="Address"></textarea>
+    <input type="text" id="editDriveId" placeholder="Drive Folder ID (optional)">
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEmployee()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const DRIVE_BASE_URL = "https://drive.google.com/drive/u/0/folders/";
+  const ROOT_FOLDER_ID = "18LExKPiPAU4zvAEV5cg8v1ELeC1ncCHU";
+
+  let employees = [
+    { id: 1, name: "Alice Johnson", role: "Software Engineer", email: "alice.j@neas.com", joinedDate: "2022-03-15", address: "123 Tech Park, San Francisco, CA", driveFolderId: "1A2B3C4D5E" },
+    { id: 2, name: "Brian Smith", role: "HR Specialist", email: "brian.s@neas.com", joinedDate: "2021-07-01", address: "456 Corporate Ave, New York, NY", driveFolderId: "2F3G4H5I6J" },
+    { id: 3, name: "Carla Mendes", role: "Marketing Manager", email: "carla.m@neas.com", joinedDate: "2020-11-20", address: "789 Business Blvd, Seattle, WA", driveFolderId: "3K4L5M6N7O" },
+    { id: 4, name: "David Chen", role: "Finance Analyst", email: "david.c@neas.com", joinedDate: "2023-01-10", address: "321 Finance District, Chicago, IL", driveFolderId: "4P5Q6R7S8T" },
+    { id: 5, name: "Elena Petrova", role: "Product Designer", email: "elena.p@neas.com", joinedDate: "2022-09-05", address: "654 Design Ave, Austin, TX", driveFolderId: "5U6V7W8X9Y" }
+  ];
+
+  let currentUser = 'viewer';
+  let isLoggedIn = false;
+  let editingId = null;
+  let pendingLoginRole = null;
+
+  const credentials = {
+    admin: 'admin123',
+    hr: 'hr123',
+    manager: 'mgr123',
+    viewer: ''
+  };
+
+  function canEdit() {
+    return isLoggedIn && (currentUser === 'admin' || currentUser === 'hr' || currentUser === 'manager');
+  }
+
+  function showLoginModal(role) {
+    pendingLoginRole = role;
+    document.getElementById('loginTitle').textContent = `Login as ${role.charAt(0).toUpperCase() + role.slice(1)}`;
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginModal').classList.add('active');
+    document.getElementById('loginPassword').focus();
+  }
+
+  function closeLoginModal() {
+    document.getElementById('loginModal').classList.remove('active');
+    pendingLoginRole = null;
+  }
+
+  function confirmLogin() {
+    const password = document.getElementById('loginPassword').value;
+    if (password === credentials[pendingLoginRole]) {
+      isLoggedIn = true;
+      currentUser = pendingLoginRole;
+      alert(`✅ Successfully logged in as ${currentUser}`);
+      closeLoginModal();
+      updateUI();
+    } else {
+      alert(`❌ Invalid password! Hint: ${credentials[pendingLoginRole]}`);
+    }
+  }
+
+  function loginAsViewer() {
+    isLoggedIn = true;
+    currentUser = 'viewer';
+    alert('👁️ Viewing as public viewer (read-only)');
+    updateUI();
+  }
+
+  function updateUI() {
+    const display = document.getElementById('roleText');
+    if (currentUser === 'viewer' || !isLoggedIn) {
+      display.textContent = 'Public viewer (read-only)';
+    } else {
+      display.textContent = `Logged in as ${currentUser}`;
+    }
+    renderTable(document.getElementById('searchInput').value);
+  }
+
+  function renderTable(filter = '') {
+    const filtered = employees.filter(emp => {
+      if (!filter) return true;
+      const s = filter.toLowerCase();
+      return emp.name.toLowerCase().includes(s) || 
+             emp.role.toLowerCase().includes(s) || 
+             emp.email.toLowerCase().includes(s) ||
+             (emp.address && emp.address.toLowerCase().includes(s)) ||
+             (emp.joinedDate && emp.joinedDate.includes(s));
+    });
+
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    
+    if (filtered.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2rem; color:#64748b;">No employees found.</td></tr>';
+    }
+
+    filtered.forEach(emp => {
+      const tr = document.createElement('tr');
+      const driveUrl = `${DRIVE_BASE_URL}${emp.driveFolderId || ROOT_FOLDER_ID}`;
+      const initials = emp.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+      
+      tr.innerHTML = `
+        <td><span class="avatar">${initials}</span>${emp.name}</td>
+        <td>${emp.role}</td>
+        <td>${emp.email}</td>
+        <td>${emp.joinedDate || '—'}</td>
+        <td title="${emp.address || ''}">${emp.address || '—'}</td>
+        <td><a href="${driveUrl}" target="_blank" class="folder-link"><i class="fab fa-google-drive"></i> Open</a></td>
+        <td>
+          ${canEdit() ? `
+            <div class="action-icons">
+              <i class="fas fa-edit" onclick="openEditModal(${emp.id})" title="Edit"></i>
+              <i class="fas fa-trash-alt" onclick="deleteEmployee(${emp.id})" title="Delete"></i>
+            </div>
+          ` : '<span class="editable-hint"><i class="fas fa-lock"></i> view only</span>'}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('employeeCount').textContent = `${filtered.length} employees`;
+  }
+
+  function openAddModal() {
+    if (!canEdit()) {
+      alert('⚠️ Please login as Admin, HR, or Manager to add employees.');
+      return;
+    }
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Add Employee';
+    document.getElementById('editName').value = '';
+    document.getElementById('editRole').value = '';
+    document.getElementById('editEmail').value = '';
+    document.getElementById('editJoinDate').value = '';
+    document.getElementById('editAddress').value = '';
+    document.getElementById('editDriveId').value = '';
+    document.getElementById('modalBackdrop').classList.add('active');
+  }
+
+  function openEditModal(id) {
+    if (!canEdit()) return;
+    const emp = employees.find(e => e.id === id);
+    if (!emp) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Employee';
+    document.getElementById('editName').value = emp.name;
+    document.getElementById('editRole').value = emp.role;
+    document.getElementById('editEmail').value = emp.email;
+    document.getElementById('editJoinDate').value = emp.joinedDate || '';
+    document.getElementById('editAddress').value = emp.address || '';
+    document.getElementById('editDriveId').value = emp.driveFolderId || '';
+    document.getElementById('modalBackdrop').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('modalBackdrop').classList.remove('active');
+  }
+
+  function saveEmployee() {
+    if (!canEdit()) return;
+    const name = document.getElementById('editName').value.trim();
+    const role = document.getElementById('editRole').value.trim();
+    const email = document.getElementById('editEmail').value.trim();
+    const joinedDate = document.getElementById('editJoinDate').value;
+    const address = document.getElementById('editAddress').value.trim();
+    const driveId = document.getElementById('editDriveId').value.trim();
+
+    if (!name || !role || !email) {
+      alert('Name, Role, and Email are required.');
+      return;
+    }
+
+    if (editingId === null) {
+      const newId = employees.length ? Math.max(...employees.map(e => e.id)) + 1 : 1;
+      employees.push({ id: newId, name, role, email, joinedDate, address, driveFolderId: driveId || ROOT_FOLDER_ID });
+      alert('✅ Employee added successfully!');
+    } else {
+      const emp = employees.find(e => e.id === editingId);
+      if (emp) {
+        emp.name = name;
+        emp.role = role;
+        emp.email = email;
+        emp.joinedDate = joinedDate;
+        emp.address = address;
+        emp.driveFolderId = driveId || ROOT_FOLDER_ID;
+        alert('✅ Employee updated successfully!');
+      }
+    }
+    closeModal();
+    renderTable(document.getElementById('searchInput').value);
+  }
+
+  function deleteEmployee(id) {
+    if (!canEdit()) return;
+    if (confirm('Are you sure you want to delete this employee?')) {
+      employees = employees.filter(e => e.id !== id);
+      renderTable(document.getElementById('searchInput').value);
+      alert('🗑️ Employee deleted.');
+    }
+  }
+
+  function exportCSV() {
+    const headers = ['ID', 'Name', 'Role', 'Email', 'JoinedDate', 'Address', 'DriveFolderId'];
+    const rows = employees.map(emp => [
+      emp.id, 
+      `"${emp.name}"`, 
+      `"${emp.role}"`, 
+      `"${emp.email}"`,
+      emp.joinedDate || '', 
+      `"${emp.address || ''}"`,
+      emp.driveFolderId || ROOT_FOLDER_ID
+    ]);
+    
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'employee_directory.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
+    alert('📥 CSV exported successfully!');
+  }
+
+  function importCSV(event) {
+    if (!canEdit()) {
+      alert('⚠️ Please login to import CSV.');
+      return;
+    }
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const lines = ev.target.result.split(/\r?\n/).filter(l => l.trim());
+      if (lines.length < 2) {
+        alert('CSV must have header and data rows.');
+        return;
+      }
+      
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''));
+      const nameIdx = headers.indexOf('name');
+      const roleIdx = headers.indexOf('role');
+      const emailIdx = headers.indexOf('email');
+      const dateIdx = headers.indexOf('joineddate');
+      const addrIdx = headers.indexOf('address');
+      const driveIdx = headers.indexOf('drivefolderid');
+      
+      if (nameIdx === -1 || roleIdx === -1 || emailIdx === -1) {
+        alert('CSV must include Name, Role, Email columns.');
+        return;
+      }
+      
+      let importedCount = 0;
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',').map(c => c.trim().replace(/"/g, ''));
+        if (cols.length < 3) continue;
+        const newId = employees.length ? Math.max(...employees.map(e => e.id)) + 1 : 1;
+        employees.push({
+          id: newId,
+          name: cols[nameIdx] || '',
+          role: cols[roleIdx] || '',
+          email: cols[emailIdx] || '',
+          joinedDate: dateIdx !== -1 ? cols[dateIdx] : '',
+          address: addrIdx !== -1 ? cols[addrIdx] : '',
+          driveFolderId: driveIdx !== -1 ? cols[driveIdx] : ROOT_FOLDER_ID
+        });
+        importedCount++;
+      }
+      renderTable(document.getElementById('searchInput').value);
+      alert(`📥 Imported ${importedCount} employees successfully!`);
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  // Close modals when clicking backdrop
+  document.getElementById('modalBackdrop').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  document.getElementById('loginModal').addEventListener('click', function(e) {
+    if (e.target === this) closeLoginModal();
+  });
+
+  // Initialize
+  renderTable('');
+</script>
+</body>
+</html>
