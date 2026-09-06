@@ -476,8 +476,12 @@
         <td>${escapeHtml(emp.joinedDate || '—')}</td>
         <td title="${escapeHtml(emp.address || '')}">${escapeHtml(emp.address || '—')}</td>
         <td><a href="${driveUrl}" target="_blank" rel="noopener" class="folder-link"><i class="fab fa-google-drive"></i> Open</a></td>
-        <td><div class="action-icons"><button type="button" class="action-button" onclick="openEditModal(${Number(emp.id)})"><i class="fas fa-edit"></i> Edit</button><button type="button" class="action-button delete" onclick="deleteEmployee(${Number(emp.id)})"><i class="fas fa-trash-alt"></i> Delete</button></div></td>` : '';
+        <td><div class="action-icons"><button type="button" class="action-button" data-edit-id="${Number(emp.id)}"><i class="fas fa-edit"></i> Edit</button><button type="button" class="action-button delete" data-delete-id="${Number(emp.id)}"><i class="fas fa-trash-alt"></i> Delete</button></div></td>` : '';
       tr.innerHTML = `<td><span class="avatar">${escapeHtml(initials)}</span>${escapeHtml(emp.name)}</td><td>${escapeHtml(emp.role)}</td><td>${escapeHtml(emp.email)}</td>${staffCells}`;
+      const editButton = tr.querySelector('[data-edit-id]');
+      const deleteButton = tr.querySelector('[data-delete-id]');
+      if (editButton) editButton.addEventListener('click', () => openEditModal(Number(emp.id)));
+      if (deleteButton) deleteButton.addEventListener('click', () => deleteEmployee(Number(emp.id)));
       tbody.appendChild(tr);
     });
 
