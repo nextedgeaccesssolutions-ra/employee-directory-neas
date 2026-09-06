@@ -19,7 +19,7 @@ async function seedIfEmpty() {
 
 function clean(input) {
   const value = key => typeof input[key] === 'string' ? input[key].trim() : '';
-  const employee = { name: value('name'), role: value('role'), email: value('email'), joinedDate: value('joinedDate') || null, address: value('address') || null, driveFolderId: value('driveFolderId') || null };
+  const employee = { name: value('name'), employeeNumber: value('employeeNumber') || null, role: value('role'), email: value('email'), joinedDate: value('joinedDate') || null, address: value('address') || null, driveFolderId: value('driveFolderId') || null };
   if (!employee.name || !employee.role || !/^\S+@\S+\.\S+$/.test(employee.email)) throw new Error('Name, role, and a valid work email are required.');
   return employee;
 }
@@ -30,20 +30,20 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const staff = sessionRole(req);
       const { rows } = staff
-        ? await sql`SELECT id, name, role, email, joined_date AS "joinedDate", address, drive_folder_id AS "driveFolderId", published FROM neas_employees ORDER BY name`
+        ? await sql`SELECT id, name, employee_number AS "employeeNumber", role, email, joined_date AS "joinedDate", address, drive_folder_id AS "driveFolderId", published FROM neas_employees ORDER BY name`
         : await sql`SELECT id, name, role, email FROM neas_employees WHERE published = TRUE ORDER BY name`;
       return res.status(200).json({ employees: rows, staffRole: staff });
     }
     const staff = staffOnly(req, res); if (!staff) return;
     if (req.method === 'POST') {
       const employee = clean(readBody(req));
-      const { rows } = await sql`INSERT INTO neas_employees (name, role, email, joined_date, address, drive_folder_id, published) VALUES (${employee.name}, ${employee.role}, ${employee.email}, ${employee.joinedDate}, ${employee.address}, ${employee.driveFolderId}, TRUE) RETURNING id`;
+      const { rows } = await sql`INSERT INTO neas_employees (name, employee_number, role, email, joined_date, address, drive_folder_id, published) VALUES (${employee.name}, ${employee.employeeNumber}, ${employee.role}, ${employee.email}, ${employee.joinedDate}, ${employee.address}, ${employee.driveFolderId}, TRUE) RETURNING id`;
       return res.status(201).json({ id: rows[0].id });
     }
     if (req.method === 'PUT') {
       const body = readBody(req); const id = Number(body.id); if (!Number.isInteger(id)) return res.status(400).json({ error: 'Employee ID is required.' });
       const employee = clean(body);
-      await sql`UPDATE neas_employees SET name=${employee.name}, role=${employee.role}, email=${employee.email}, joined_date=${employee.joinedDate}, address=${employee.address}, drive_folder_id=${employee.driveFolderId}, published=TRUE, updated_at=NOW() WHERE id=${id}`;
+      await sql`UPDATE neas_employees SET name=${employee.name}, employee_number=${employee.employeeNumber}, role=${employee.role}, email=${employee.email}, joined_date=${employee.joinedDate}, address=${employee.address}, drive_folder_id=${employee.driveFolderId}, published=TRUE, updated_at=NOW() WHERE id=${id}`;
       return res.status(200).json({ id });
     }
     if (req.method === 'DELETE') {

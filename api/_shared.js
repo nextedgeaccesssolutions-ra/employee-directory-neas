@@ -8,6 +8,7 @@ export async function ensureSchema() {
   await sql`CREATE TABLE IF NOT EXISTS neas_employees (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
+    employee_number TEXT,
     role TEXT NOT NULL,
     email TEXT NOT NULL,
     joined_date DATE,
@@ -16,6 +17,7 @@ export async function ensureSchema() {
     published BOOLEAN NOT NULL DEFAULT TRUE,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`;
+  await sql`ALTER TABLE neas_employees ADD COLUMN IF NOT EXISTS employee_number TEXT`;
 }
 
 export function readBody(req) {
