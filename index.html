@@ -528,7 +528,7 @@
       const initials = emp.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
       
       const requestUrl = `/api/access-request?employee=${encodeURIComponent(emp.id)}`;
-      const viewerDriveCell = `<a href="${requestUrl}&channel=email" class="folder-link"><i class="fas fa-envelope"></i> Request ${escapeHtml(emp.name)} access</a> <a href="${requestUrl}&channel=whatsapp" target="_blank" rel="noopener" class="folder-link"><i class="fab fa-whatsapp"></i> WhatsApp</a>`;
+      const viewerDriveCell = `<a href="#" data-email-request="${requestUrl}&channel=email" class="folder-link"><i class="fas fa-envelope"></i> Request ${escapeHtml(emp.name)} access</a> <a href="${requestUrl}&channel=whatsapp" target="_blank" rel="noopener" class="folder-link"><i class="fab fa-whatsapp"></i> WhatsApp</a>`;
       const staffCells = canEdit() ? `
         <td data-label="Joined date">${escapeHtml(emp.joinedDate || '—')}</td>
         <td data-label="Address" title="${escapeHtml(emp.address || '')}">${escapeHtml(emp.address || '—')}</td>
@@ -704,9 +704,26 @@
     if (e.target === this) closeModal();
   });
   document.getElementById('tableBody').addEventListener('click', function(e) {
+    const emailRequest = e.target.closest('[data-email-request]');
+    if (emailRequest) {
+      e.preventDefault();
+      openEmailRequest(emailRequest.dataset.emailRequest);
+      return;
+    }
     const deleteButton = e.target.closest('[data-delete-id]');
     if (deleteButton) deleteEmployee(Number(deleteButton.dataset.deleteId));
   });
+
+  async function openEmailRequest(requestUrl) {
+    try {
+      const response = await fetch(requestUrl, { headers: { Accept: 'application/json' } });
+      const result = await response.json();
+      if (!response.ok || !result.destination) throw new Error(result.error || 'Unable to prepare the email request.');
+      window.location.assign(result.destination);
+    } catch (error) {
+      alert(error.message || 'Unable to open your email application.');
+    }
+  }
   document.getElementById('loginBackdrop').addEventListener('click', function(e) {
     if (e.target === this) closeLoginModal();
   });

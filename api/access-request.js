@@ -31,6 +31,7 @@ export default async function handler(req, res) {
       : `https://api.whatsapp.com/send?phone=${ACCESS_WHATSAPP}&text=${encodeURIComponent(message)}`;
 
     res.setHeader('Cache-Control', 'no-store');
+    if (channel === 'email') return res.status(200).json({ destination });
     return res.redirect(302, destination);
   } catch (error) {
     console.error(error);
