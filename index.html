@@ -429,8 +429,6 @@
 <script>
   const DRIVE_BASE_URL = "https://drive.google.com/drive/u/0/folders/";
   const ROOT_FOLDER_ID = '';
-  const ACCESS_EMAIL = 'info.nextedgeaccesssolutions@gmail.com';
-  const ACCESS_WHATSAPP = '639159029406';
 
   let employees = [];
 
@@ -529,8 +527,8 @@
       const driveUrl = /^https?:\/\//i.test(driveValue) ? driveValue : `${DRIVE_BASE_URL}${driveValue}`;
       const initials = emp.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
       
-      const requestText = encodeURIComponent(`Hello NextEdge Access Solutions, I would like to request approval to view the Drive folder for ${emp.name}. Please contact me with the access requirements.`);
-      const viewerDriveCell = `<a href="mailto:${ACCESS_EMAIL}?subject=${encodeURIComponent(`Drive folder access request — ${emp.name}`)}&body=${requestText}" class="folder-link"><i class="fas fa-envelope"></i> Request ${escapeHtml(emp.name)} access</a> <a href="https://wa.me/${ACCESS_WHATSAPP}?text=${requestText}" target="_blank" rel="noopener" class="folder-link"><i class="fab fa-whatsapp"></i> WhatsApp</a>`;
+      const requestUrl = `/api/access-request?employee=${encodeURIComponent(emp.id)}`;
+      const viewerDriveCell = `<a href="${requestUrl}&channel=email" class="folder-link"><i class="fas fa-envelope"></i> Request ${escapeHtml(emp.name)} access</a> <a href="${requestUrl}&channel=whatsapp" target="_blank" rel="noopener" class="folder-link"><i class="fab fa-whatsapp"></i> WhatsApp</a>`;
       const staffCells = canEdit() ? `
         <td data-label="Joined date">${escapeHtml(emp.joinedDate || '—')}</td>
         <td data-label="Address" title="${escapeHtml(emp.address || '')}">${escapeHtml(emp.address || '—')}</td>
