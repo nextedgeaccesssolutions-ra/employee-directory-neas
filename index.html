@@ -329,10 +329,10 @@
       <thead>
         <tr>
           <th>Employee</th>
+          <th>Employee No.</th>
            <th>Role</th>
            <th>Email</th>
            <th>Drive Folder</th>
-           <th class="staff-column">Employee No.</th>
            <th class="staff-column">Joined Date</th>
            <th class="staff-column">Address</th>
            <th class="staff-column">Drive Folder</th>
@@ -481,7 +481,7 @@
     tbody.innerHTML = '';
     
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="${canEdit() ? 9 : 4}" style="text-align:center; padding:2rem; color:#64748b;">No employees found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="${canEdit() ? 9 : 5}" style="text-align:center; padding:2rem; color:#64748b;">No employees found.</td></tr>`;
     }
 
     filtered.forEach(emp => {
@@ -491,14 +491,13 @@
       const initials = emp.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
       
       const requestText = encodeURIComponent(`Hello NextEdge Access Solutions, I would like to request approval to view the Drive folder for ${emp.name}. Please contact me with the access requirements.`);
-      const viewerDriveCell = `<td><a href="mailto:${ACCESS_EMAIL}?subject=${encodeURIComponent(`Drive folder access request — ${emp.name}`)}&body=${requestText}" class="folder-link"><i class="fas fa-envelope"></i> Request access</a> <a href="https://wa.me/${ACCESS_WHATSAPP}?text=${requestText}" target="_blank" rel="noopener" class="folder-link"><i class="fab fa-whatsapp"></i> WhatsApp</a></td>`;
+      const viewerDriveCell = `<td><a href="mailto:${ACCESS_EMAIL}?subject=${encodeURIComponent(`Drive folder access request — ${emp.name}`)}&body=${requestText}" class="folder-link"><i class="fas fa-envelope"></i> Request ${escapeHtml(emp.name)} access</a> <a href="https://wa.me/${ACCESS_WHATSAPP}?text=${requestText}" target="_blank" rel="noopener" class="folder-link"><i class="fab fa-whatsapp"></i> WhatsApp</a></td>`;
       const staffCells = canEdit() ? `
-        <td>${escapeHtml(emp.employeeNumber || '—')}</td>
         <td>${escapeHtml(emp.joinedDate || '—')}</td>
         <td title="${escapeHtml(emp.address || '')}">${escapeHtml(emp.address || '—')}</td>
         <td><a href="${driveUrl}" target="_blank" rel="noopener" class="folder-link"><i class="fab fa-google-drive"></i> Open</a></td>
         <td><div class="action-icons"><a class="action-button" href="?edit=${Number(emp.id)}"><i class="fas fa-edit"></i> Edit</a><button type="button" class="action-button delete" data-delete-id="${Number(emp.id)}"><i class="fas fa-trash-alt"></i> Delete</button></div></td>` : '';
-      tr.innerHTML = `<td><span class="avatar">${escapeHtml(initials)}</span>${escapeHtml(emp.name)}</td><td>${escapeHtml(emp.role)}</td><td>${escapeHtml(emp.email)}</td>${viewerDriveCell}${staffCells}`;
+      tr.innerHTML = `<td><span class="avatar">${escapeHtml(initials)}</span>${escapeHtml(emp.name)}</td><td>${escapeHtml(emp.employeeNumber || '—')}</td><td>${escapeHtml(emp.role)}</td><td>${escapeHtml(emp.email)}</td>${viewerDriveCell}${staffCells}`;
       tbody.appendChild(tr);
     });
 

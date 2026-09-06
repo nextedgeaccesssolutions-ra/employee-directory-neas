@@ -31,7 +31,7 @@ export default async function handler(req, res) {
       const staff = sessionRole(req);
       const { rows } = staff
         ? await sql`SELECT id, name, employee_number AS "employeeNumber", role, email, joined_date AS "joinedDate", address, drive_folder_id AS "driveFolderId", published FROM neas_employees ORDER BY name`
-        : await sql`SELECT id, name, role, email FROM neas_employees WHERE published = TRUE ORDER BY name`;
+        : await sql`SELECT id, name, employee_number AS "employeeNumber", role, email FROM neas_employees WHERE published = TRUE ORDER BY name`;
       return res.status(200).json({ employees: rows, staffRole: staff });
     }
     const staff = staffOnly(req, res); if (!staff) return;
