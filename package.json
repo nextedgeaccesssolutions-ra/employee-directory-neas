@@ -1,0 +1,9 @@
+{
+  "name": "neas-employee-directory",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "dependencies": {
+    "@vercel/postgres": "^0.10.0"
+  }
+}

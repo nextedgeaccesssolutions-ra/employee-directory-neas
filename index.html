@@ -312,9 +312,9 @@
     </div>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
       <button class="btn" onclick="exportCSV()"><i class="fas fa-file-export"></i> Export CSV</button>
-      <label class="btn" for="importFileInput" style="cursor:pointer;"><i class="fas fa-file-import"></i> Import CSV</label>
+       <label id="importLabel" class="btn" for="importFileInput" style="cursor:pointer;"><i class="fas fa-file-import"></i> Import CSV</label>
       <input type="file" id="importFileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
-      <button class="btn btn-success" onclick="openAddModal()"><i class="fas fa-user-plus"></i> Add Employee</button>
+       <button id="addEmployeeBtn" class="btn btn-success" onclick="openAddModal()"><i class="fas fa-user-plus"></i> Add Employee</button>
     </div>
   </div>
 
@@ -326,10 +326,10 @@
           <th>Employee</th>
           <th>Role</th>
           <th>Email</th>
-          <th>Joined Date</th>
-          <th>Address</th>
-          <th>Drive Folder</th>
-          <th>Actions</th>
+           <th class="staff-column">Joined Date</th>
+           <th class="staff-column">Address</th>
+           <th class="staff-column">Drive Folder</th>
+           <th class="staff-column">Actions</th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
@@ -376,7 +376,20 @@
   let isLoggedIn = false;
   let editingId = null;
 
-  const credentials = { viewer: '' };
+  const api = async (url, options = {}) => {
+    const response = await fetch(url, { headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, ...options });
+    if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || 'Request failed.');
+    return response.status === 204 ? null : response.json();
+  };
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' })[char]);
+
+  async function loadEmployees() {
+    const data = await api('/api/employees');
+    employees = data.employees;
+    currentUser = data.staffRole || 'viewer';
+    isLoggedIn = currentUser !== 'viewer';
+    updateUI();
+  }
 
   function canEdit() {
     return isLoggedIn && (currentUser === 'admin' || currentUser === 'hr' || currentUser === 'manager');
@@ -390,16 +403,11 @@
       return;
     }
     const password = prompt(`Enter password for ${role}:`);
-    if (credentials[role] && password === credentials[role]) {
-      isLoggedIn = true;
-      currentUser = role;
-      alert(`✅ Logged in as ${role}`);
-    } else {
-      alert('❌ Staff authentication is being configured.');
-      isLoggedIn = false;
-      currentUser = 'viewer';
-    }
-    updateUI();
+    if (password === null) return;
+    api('/api/auth', { method: 'POST', body: JSON.stringify({ role, password }) })
+      .then(() => loadEmployees())
+      .then(() => alert(`✅ Logged in as ${role}.`))
+      .catch(error => alert(`❌ ${error.message}`));
   }
 
   function updateUI() {
@@ -409,6 +417,9 @@
     } else {
       display.textContent = `Logged in as ${currentUser}`;
     }
+    document.querySelectorAll('.staff-column').forEach(cell => cell.style.display = canEdit() ? '' : 'none');
+    document.getElementById('addEmployeeBtn').style.display = canEdit() ? '' : 'none';
+    document.getElementById('importLabel').style.display = canEdit() ? '' : 'none';
     renderTable(document.getElementById('searchInput').value);
   }
 
@@ -427,7 +438,7 @@
     tbody.innerHTML = '';
     
     if (filtered.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2rem; color:#64748b;">No employees found.</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="${canEdit() ? 7 : 3}" style="text-align:center; padding:2rem; color:#64748b;">No employees found.</td></tr>`;
     }
 
     filtered.forEach(emp => {
@@ -435,22 +446,12 @@
       const driveUrl = `${DRIVE_BASE_URL}${emp.driveFolderId || ROOT_FOLDER_ID}`;
       const initials = emp.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
       
-      tr.innerHTML = `
-        <td><span class="avatar">${initials}</span>${emp.name}</td>
-        <td>${emp.role}</td>
-        <td>${emp.email}</td>
-        <td>${emp.joinedDate || '—'}</td>
-        <td title="${emp.address || ''}">${emp.address || '—'}</td>
-        <td><a href="${driveUrl}" target="_blank" class="folder-link"><i class="fab fa-google-drive"></i> Open</a></td>
-        <td>
-          ${canEdit() ? `
-            <div class="action-icons">
-              <i class="fas fa-edit" onclick="openEditModal(${emp.id})" title="Edit"></i>
-              <i class="fas fa-trash-alt" onclick="deleteEmployee(${emp.id})" title="Delete"></i>
-            </div>
-          ` : '<span class="editable-hint"><i class="fas fa-lock"></i> view only</span>'}
-        </td>
-      `;
+      const staffCells = canEdit() ? `
+        <td>${escapeHtml(emp.joinedDate || '—')}</td>
+        <td title="${escapeHtml(emp.address || '')}">${escapeHtml(emp.address || '—')}</td>
+        <td><a href="${driveUrl}" target="_blank" rel="noopener" class="folder-link"><i class="fab fa-google-drive"></i> Open</a></td>
+        <td><div class="action-icons"><i class="fas fa-edit" onclick="openEditModal(${Number(emp.id)})" title="Edit"></i><i class="fas fa-trash-alt" onclick="deleteEmployee(${Number(emp.id)})" title="Delete"></i></div></td>` : '';
+      tr.innerHTML = `<td><span class="avatar">${escapeHtml(initials)}</span>${escapeHtml(emp.name)}</td><td>${escapeHtml(emp.role)}</td><td>${escapeHtml(emp.email)}</td>${staffCells}`;
       tbody.appendChild(tr);
     });
 
@@ -492,7 +493,7 @@
     document.getElementById('modalBackdrop').classList.remove('active');
   }
 
-  function saveEmployee() {
+  async function saveEmployee() {
     if (!canEdit()) return;
     const name = document.getElementById('editName').value.trim();
     const role = document.getElementById('editRole').value.trim();
@@ -506,32 +507,23 @@
       return;
     }
 
-    if (editingId === null) {
-      const newId = employees.length ? Math.max(...employees.map(e => e.id)) + 1 : 1;
-      employees.push({ id: newId, name, role, email, joinedDate, address, driveFolderId: driveId || ROOT_FOLDER_ID });
-      alert('✅ Employee added successfully!');
-    } else {
-      const emp = employees.find(e => e.id === editingId);
-      if (emp) {
-        emp.name = name;
-        emp.role = role;
-        emp.email = email;
-        emp.joinedDate = joinedDate;
-        emp.address = address;
-        emp.driveFolderId = driveId || ROOT_FOLDER_ID;
-        alert('✅ Employee updated successfully!');
-      }
-    }
-    closeModal();
-    renderTable(document.getElementById('searchInput').value);
+    try {
+      const employee = { name, role, email, joinedDate, address, driveFolderId: driveId || ROOT_FOLDER_ID };
+      await api('/api/employees', { method: editingId === null ? 'POST' : 'PUT', body: JSON.stringify(editingId === null ? employee : { ...employee, id: editingId }) });
+      closeModal();
+      await loadEmployees();
+      alert('✅ Saved and published live.');
+    } catch (error) { alert(`❌ ${error.message}`); }
   }
 
-  function deleteEmployee(id) {
+  async function deleteEmployee(id) {
     if (!canEdit()) return;
     if (confirm('Are you sure you want to delete this employee?')) {
-      employees = employees.filter(e => e.id !== id);
-      renderTable(document.getElementById('searchInput').value);
-      alert('🗑️ Employee deleted.');
+      try {
+        await api(`/api/employees?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+        await loadEmployees();
+        alert('🗑️ Employee deleted and public directory updated.');
+      } catch (error) { alert(`❌ ${error.message}`); }
     }
   }
 
@@ -565,7 +557,7 @@
     const file = event.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       const lines = ev.target.result.split(/\r?\n/).filter(l => l.trim());
       if (lines.length < 2) {
         alert('CSV must have header and data rows.');
@@ -589,20 +581,19 @@
       for (let i = 1; i < lines.length; i++) {
         const cols = lines[i].split(',').map(c => c.trim().replace(/"/g, ''));
         if (cols.length < 3) continue;
-        const newId = employees.length ? Math.max(...employees.map(e => e.id)) + 1 : 1;
-        employees.push({
-          id: newId,
-          name: cols[nameIdx] || '',
-          role: cols[roleIdx] || '',
-          email: cols[emailIdx] || '',
-          joinedDate: dateIdx !== -1 ? cols[dateIdx] : '',
-          address: addrIdx !== -1 ? cols[addrIdx] : '',
-          driveFolderId: driveIdx !== -1 ? cols[driveIdx] : ROOT_FOLDER_ID
-        });
-        importedCount++;
+        if (!cols[nameIdx] || !cols[roleIdx] || !cols[emailIdx]) continue;
+        try {
+          await api('/api/employees', { method: 'POST', body: JSON.stringify({
+            name: cols[nameIdx], role: cols[roleIdx], email: cols[emailIdx],
+            joinedDate: dateIdx !== -1 ? cols[dateIdx] : '',
+            address: addrIdx !== -1 ? cols[addrIdx] : '',
+            driveFolderId: driveIdx !== -1 ? cols[driveIdx] : ROOT_FOLDER_ID
+          }) });
+          importedCount++;
+        } catch (error) { alert(`❌ Import stopped: ${error.message}`); break; }
       }
-      renderTable(document.getElementById('searchInput').value);
-      alert(`📥 Imported ${importedCount} employees successfully!`);
+      await loadEmployees();
+      alert(`📥 Imported and published ${importedCount} employees successfully!`);
     };
     reader.readAsText(file);
     event.target.value = '';
@@ -613,8 +604,8 @@
     if (e.target === this) closeModal();
   });
 
-  // Initialize
-  renderTable('');
+  // Initialize with the live public directory. The fallback remains visible only while it loads.
+  loadEmployees().catch(error => alert(`❌ Unable to load the live directory: ${error.message}`));
 </script>
 </body>
 </html>
