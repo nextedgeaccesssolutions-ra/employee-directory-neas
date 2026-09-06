@@ -213,6 +213,7 @@
       background: #fff;
       color: #1e5d9b;
       cursor: pointer;
+      text-decoration: none;
       font: inherit;
       font-size: 0.8rem;
       font-weight: 700;
@@ -401,6 +402,11 @@
     currentUser = data.staffRole || 'viewer';
     isLoggedIn = currentUser !== 'viewer';
     updateUI();
+    const requestedEditId = Number(new URLSearchParams(window.location.search).get('edit'));
+    if (canEdit() && Number.isInteger(requestedEditId) && requestedEditId > 0) {
+      window.history.replaceState({}, '', window.location.pathname);
+      openEditModal(requestedEditId);
+    }
   }
 
   function canEdit() {
@@ -476,7 +482,7 @@
         <td>${escapeHtml(emp.joinedDate || '—')}</td>
         <td title="${escapeHtml(emp.address || '')}">${escapeHtml(emp.address || '—')}</td>
         <td><a href="${driveUrl}" target="_blank" rel="noopener" class="folder-link"><i class="fab fa-google-drive"></i> Open</a></td>
-        <td><div class="action-icons"><button type="button" class="action-button" data-edit-id="${Number(emp.id)}"><i class="fas fa-edit"></i> Edit</button><button type="button" class="action-button delete" data-delete-id="${Number(emp.id)}"><i class="fas fa-trash-alt"></i> Delete</button></div></td>` : '';
+        <td><div class="action-icons"><a class="action-button" href="?edit=${Number(emp.id)}"><i class="fas fa-edit"></i> Edit</a><button type="button" class="action-button delete" data-delete-id="${Number(emp.id)}"><i class="fas fa-trash-alt"></i> Delete</button></div></td>` : '';
       tr.innerHTML = `<td><span class="avatar">${escapeHtml(initials)}</span>${escapeHtml(emp.name)}</td><td>${escapeHtml(emp.role)}</td><td>${escapeHtml(emp.email)}</td>${staffCells}`;
       tbody.appendChild(tr);
     });
@@ -630,9 +636,7 @@
     if (e.target === this) closeModal();
   });
   document.getElementById('tableBody').addEventListener('click', function(e) {
-    const editButton = e.target.closest('[data-edit-id]');
     const deleteButton = e.target.closest('[data-delete-id]');
-    if (editButton) openEditModal(Number(editButton.dataset.editId));
     if (deleteButton) deleteEmployee(Number(deleteButton.dataset.deleteId));
   });
   document.getElementById('loginBackdrop').addEventListener('click', function(e) {
