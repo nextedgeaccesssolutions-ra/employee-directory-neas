@@ -486,7 +486,8 @@
 
     filtered.forEach(emp => {
       const tr = document.createElement('tr');
-      const driveUrl = `${DRIVE_BASE_URL}${emp.driveFolderId || ROOT_FOLDER_ID}`;
+      const driveValue = emp.driveFolderId || ROOT_FOLDER_ID;
+      const driveUrl = /^https?:\/\//i.test(driveValue) ? driveValue : `${DRIVE_BASE_URL}${driveValue}`;
       const initials = emp.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
       
       const requestText = encodeURIComponent(`Hello NextEdge Access Solutions, I would like to request approval to view the Drive folder for ${emp.name}. Please contact me with the access requirements.`);
