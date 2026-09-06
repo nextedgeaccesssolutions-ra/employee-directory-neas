@@ -508,7 +508,7 @@
 
   function openEditModal(id) {
     if (!canEdit()) return;
-    const emp = employees.find(e => e.id === id);
+    const emp = employees.find(e => Number(e.id) === Number(id));
     if (!emp) return;
     editingId = id;
     document.getElementById('modalTitle').textContent = 'Edit Employee';
