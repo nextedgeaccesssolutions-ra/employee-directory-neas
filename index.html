@@ -284,10 +284,6 @@
         <div class="logo-sub">Employee Directory · Drive Sync</div>
       </div>
     </div>
-    <div class="drive-badge">
-      <i class="fab fa-google-drive"></i>
-      <span>Folder: 18LExKPiPAU4zvAEV5cg8v1ELeC1ncCHU</span>
-    </div>
   </div>
 
   <!-- LOGIN -->
@@ -362,15 +358,9 @@
 
 <script>
   const DRIVE_BASE_URL = "https://drive.google.com/drive/u/0/folders/";
-  const ROOT_FOLDER_ID = "18LExKPiPAU4zvAEV5cg8v1ELeC1ncCHU";
+  const ROOT_FOLDER_ID = '';
 
-  let employees = [
-    { id: 1, name: "Alice Johnson", role: "Software Engineer", email: "alice.j@neas.com", joinedDate: "2022-03-15", address: "123 Tech Park, San Francisco, CA", driveFolderId: "1A2B3C4D5E" },
-    { id: 2, name: "Brian Smith", role: "HR Specialist", email: "brian.s@neas.com", joinedDate: "2021-07-01", address: "456 Corporate Ave, New York, NY", driveFolderId: "2F3G4H5I6J" },
-    { id: 3, name: "Carla Mendes", role: "Marketing Manager", email: "carla.m@neas.com", joinedDate: "2020-11-20", address: "789 Business Blvd, Seattle, WA", driveFolderId: "3K4L5M6N7O" },
-    { id: 4, name: "David Chen", role: "Finance Analyst", email: "david.c@neas.com", joinedDate: "2023-01-10", address: "321 Finance District, Chicago, IL", driveFolderId: "4P5Q6R7S8T" },
-    { id: 5, name: "Elena Petrova", role: "Product Designer", email: "elena.p@neas.com", joinedDate: "2022-09-05", address: "654 Design Ave, Austin, TX", driveFolderId: "5U6V7W8X9Y" }
-  ];
+  let employees = [];
 
   let currentUser = 'viewer';
   let isLoggedIn = false;
@@ -604,7 +594,7 @@
     if (e.target === this) closeModal();
   });
 
-  // Initialize with the live public directory. The fallback remains visible only while it loads.
+  // Initialize from the live public directory; private details are never embedded in the page.
   loadEmployees().catch(error => alert(`❌ Unable to load the live directory: ${error.message}`));
 </script>
 </body>
