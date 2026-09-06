@@ -356,6 +356,19 @@
   </div>
 </div>
 
+<!-- STAFF SIGN-IN MODAL -->
+<div class="modal-backdrop" id="loginBackdrop">
+  <div class="modal-card">
+    <h3 id="loginTitle">Staff Sign In</h3>
+    <p id="loginDescription" style="margin: 0 0 14px; color: #64748b; font-size: .9rem;"></p>
+    <input type="password" id="staffPassword" placeholder="Password" autocomplete="current-password">
+    <div class="modal-actions">
+      <button class="btn" onclick="closeLoginModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitLogin()">Sign In</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const DRIVE_BASE_URL = "https://drive.google.com/drive/u/0/folders/";
   const ROOT_FOLDER_ID = '';
@@ -365,6 +378,7 @@
   let currentUser = 'viewer';
   let isLoggedIn = false;
   let editingId = null;
+  let pendingRole = null;
 
   const api = async (url, options = {}) => {
     const response = await fetch(url, { headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, ...options });
@@ -387,15 +401,29 @@
 
   function login(role) {
     if (role === 'viewer') {
-      isLoggedIn = true;
-      currentUser = 'viewer';
-      updateUI();
+      api('/api/auth', { method: 'DELETE' }).then(loadEmployees).catch(error => alert(`❌ ${error.message}`));
       return;
     }
-    const password = prompt(`Enter password for ${role}:`);
-    if (password === null) return;
+    pendingRole = role;
+    document.getElementById('loginTitle').textContent = `${role.charAt(0).toUpperCase() + role.slice(1)} Sign In`;
+    document.getElementById('loginDescription').textContent = `Enter the ${role} password to manage and publish employee details.`;
+    document.getElementById('staffPassword').value = '';
+    document.getElementById('loginBackdrop').classList.add('active');
+    setTimeout(() => document.getElementById('staffPassword').focus(), 0);
+  }
+
+  function closeLoginModal() {
+    pendingRole = null;
+    document.getElementById('loginBackdrop').classList.remove('active');
+  }
+
+  function submitLogin() {
+    if (!pendingRole) return;
+    const role = pendingRole;
+    const password = document.getElementById('staffPassword').value;
+    if (!password) { alert('Enter the password to continue.'); return; }
     api('/api/auth', { method: 'POST', body: JSON.stringify({ role, password }) })
-      .then(() => loadEmployees())
+      .then(() => { closeLoginModal(); return loadEmployees(); })
       .then(() => alert(`✅ Logged in as ${role}.`))
       .catch(error => alert(`❌ ${error.message}`));
   }
@@ -592,6 +620,12 @@
   // Close modal when clicking backdrop
   document.getElementById('modalBackdrop').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
+  });
+  document.getElementById('loginBackdrop').addEventListener('click', function(e) {
+    if (e.target === this) closeLoginModal();
+  });
+  document.getElementById('staffPassword').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') submitLogin();
   });
 
   // Initialize from the live public directory; private details are never embedded in the page.
