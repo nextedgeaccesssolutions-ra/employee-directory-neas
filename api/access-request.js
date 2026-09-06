@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     const message = `Hello NextEdge Access Solutions, I would like to request approval to view the Drive folder for ${employee.name}. Please contact me with the access requirements.\n\n${folderUrl}`;
     const destination = channel === 'email'
       ? `mailto:${ACCESS_EMAIL}?subject=${encodeURIComponent(`Drive folder access request — ${employee.name}`)}&body=${encodeURIComponent(message)}`
-      : `https://wa.me/${ACCESS_WHATSAPP}?text=${encodeURIComponent(message)}`;
+      : `https://api.whatsapp.com/send?phone=${ACCESS_WHATSAPP}&text=${encodeURIComponent(message)}`;
 
     res.setHeader('Cache-Control', 'no-store');
     return res.redirect(302, destination);
