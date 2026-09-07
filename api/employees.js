@@ -37,8 +37,8 @@ export default async function handler(req, res) {
     const staff = staffOnly(req, res); if (!staff) return;
     if (req.method === 'POST') {
       const employee = clean(readBody(req));
-      const { rows } = await sql`INSERT INTO neas_employees (name, employee_number, role, email, joined_date, address, drive_folder_id, published) VALUES (${employee.name}, ${employee.employeeNumber}, ${employee.role}, ${employee.email}, ${employee.joinedDate}, ${employee.address}, ${employee.driveFolderId}, TRUE) RETURNING id`;
-      return res.status(201).json({ id: rows[0].id });
+      const { rows } = await sql`INSERT INTO neas_employees (name, employee_number, role, email, joined_date, address, drive_folder_id, published) VALUES (${employee.name}, COALESCE(${employee.employeeNumber}, (SELECT (COALESCE(MAX(NULLIF(regexp_replace(COALESCE(employee_number, ''), '[^0-9]', '', 'g'), '')::BIGINT), 0) + 1)::TEXT FROM neas_employees)), ${employee.role}, ${employee.email}, ${employee.joinedDate}, ${employee.address}, ${employee.driveFolderId}, TRUE) RETURNING id, employee_number AS "employeeNumber"`;
+      return res.status(201).json({ id: rows[0].id, employeeNumber: rows[0].employeeNumber });
     }
     if (req.method === 'PUT') {
       const body = readBody(req); const id = Number(body.id); if (!Number.isInteger(id)) return res.status(400).json({ error: 'Employee ID is required.' });
