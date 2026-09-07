@@ -30,8 +30,8 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const staff = sessionRole(req);
       const { rows } = staff
-        ? await sql`SELECT id, name, employee_number AS "employeeNumber", role, email, joined_date AS "joinedDate", address, drive_folder_id AS "driveFolderId", published FROM neas_employees ORDER BY name`
-        : await sql`SELECT id, name, employee_number AS "employeeNumber", role, email FROM neas_employees WHERE published = TRUE ORDER BY name`;
+        ? await sql`SELECT id, name, employee_number AS "employeeNumber", role, email, joined_date AS "joinedDate", address, drive_folder_id AS "driveFolderId", published FROM neas_employees ORDER BY NULLIF(regexp_replace(COALESCE(employee_number, ''), '[^0-9]', '', 'g'), '')::BIGINT NULLS LAST, name`
+        : await sql`SELECT id, name, employee_number AS "employeeNumber", role, email FROM neas_employees WHERE published = TRUE ORDER BY NULLIF(regexp_replace(COALESCE(employee_number, ''), '[^0-9]', '', 'g'), '')::BIGINT NULLS LAST, name`;
       return res.status(200).json({ employees: rows, staffRole: staff });
     }
     const staff = staffOnly(req, res); if (!staff) return;
